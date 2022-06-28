@@ -1,23 +1,41 @@
-import logo from './logo.svg';
 import './App.css';
+import { useState, useEffect } from "react";
+import ListControl from './components/ListControl';
+import CountryList from './components/CountryList';
+import { subscribe, unsubscribe } from "./events";
 
-function App() {
+const App = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [countryList, setList] = useState([]);
+
+  useEffect(() => {
+    subscribe("showList", () => setIsOpen(true));
+    subscribe("hideList", () => setIsOpen(false));
+
+    async function fetchData() {
+      const apiUrl = 'https://restcountries.com/v3.1/region/africa';
+      const response = await fetch(apiUrl)
+      let data = await response.json()
+      setList(data)
+    }
+    fetchData()
+
+    return () => {
+      unsubscribe("showList");
+      unsubscribe("hideList");
+    }
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Using Custom Events In React</h1>
+      <ListControl listState={isOpen}></ListControl>
+      {
+        isOpen ? <CountryList listData={countryList}></CountryList> :
+          <h3>
+            Click on the Button above to render the list of African Countries
+          </h3>
+      }
     </div>
   );
 }
