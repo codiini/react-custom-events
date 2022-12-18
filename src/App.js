@@ -21,8 +21,8 @@ const App = () => {
     fetchData()
 
     return () => {
-      unsubscribe("showList");
-      unsubscribe("hideList");
+      unsubscribe("showList", () => setIsOpen(false));
+      unsubscribe("hideList", () => setIsOpen(true));
     }
   }, []);
 
